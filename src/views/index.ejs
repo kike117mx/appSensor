@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Sensor Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <%- include('partials/navigation') %>
+    <h1>Sensor Data</h1>
+    <canvas id="sensorChart" width="400" height="200"></canvas>
+    <script>
+        const ctx = document.getElementById('sensorChart').getContext('2d');
+        const sensorChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Sensor Data',
+                    data: [],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'second'
+                        }
+                    }
+                }
+            }
+        });
+
+        const socket = new WebSocket('ws://tu-dominio.com:8080');
+
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            sensorChart.data.labels.push(new Date());
+            sensorChart.data.datasets[0].data.push(data.sensorValue);
+            sensorChart.update();
+        };
+    </script>
+    <%- include('partials/footer') %>
+</body>
+</html>
